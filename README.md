@@ -12,4 +12,9 @@ Here are some ideas to get you started:
 - 🔭 I’m currently working on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
 - 🌱 I’m currently learning JavaScript (Vannila and Node) and PHP
 - 💬 Ask me about Anything
-- 📫 How to reach me: ...
+
+## Check my other social media:
+* <a href="https://twitter.com/mjfutera" target="_blank">Twitter</a>
+* <a href="https://www.linkedin.com/in/michalfutera/" target="_blank">LinkedIn</a>
+* <a href="https://www.buymeacoffee.com/mjfutera" target="_blank">Buy Me A Coffee</a>
+* <a href="https://linktr.ee/mjfutera" target="_blank">Other links</a>
