@@ -9,8 +9,8 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 
 Here are some ideas to get you started:
 
-- 🔭 I’m currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
-- 🌱 I’m currently learn JavaScript (Vannila and Node) and PHP
+- 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
+- 🌱 I currently learn JavaScript (Vannila and Node) and PHP
 - 💬 Ask me about Anything
 
 ## Check my other social media:
