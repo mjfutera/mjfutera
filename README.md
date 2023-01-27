@@ -11,7 +11,7 @@ Here are some ideas to get you started:
 
 - 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
 - 🌱 I currently learn JavaScript (Vannila and Node) and PHP
-- 💬 Ask me about Anything
+- 💬 Ask me about Anything.
 
 ## Check my other social media:
 * <a href="https://twitter.com/mjfutera" target="_blank">Twitter</a>
