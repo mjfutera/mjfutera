@@ -13,6 +13,8 @@ Here are some ideas to get you started:
 - 🌱 I currently learn JavaScript (Vannila and Node) and PHP
 - 💬 Ask me about Anything
 
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=mjfutera)](https://github.com/anuraghazra/github-readme-stats)
+
 ## Check my other social media:
 * <a href="https://twitter.com/mjfutera" target="_blank">Twitter</a>
 * <a href="https://www.linkedin.com/in/michalfutera/" target="_blank">LinkedIn</a>
