@@ -19,4 +19,4 @@ Here are some ideas to get you started:
 * <a href="https://twitter.com/mjfutera" target="_blank">Twitter</a>
 * <a href="https://www.linkedin.com/in/michalfutera/" target="_blank">LinkedIn</a>
 * <a href="https://www.buymeacoffee.com/mjfutera" target="_blank">Buy Me A Coffee</a>
-* <a href="https://linktr.ee/mjfutera" target="_blank">Other links</a>
+* <a href="https://linktr.ee/mjfutera" target="_blank">Other links & <b>Contact</b></a>
