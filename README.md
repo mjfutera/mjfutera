@@ -9,7 +9,7 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 
 - 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
 - 🌱 I currently learn JavaScript (Vannila and NodeJS, VueJS) and PHP
-- 💬 Ask me about Anything.
+- 💬 Ask me about Anything
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=mjfutera)](https://github.com/anuraghazra/github-readme-stats)
 
