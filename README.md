@@ -11,8 +11,6 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 - 🌱 I currently learn JavaScript (Vannila and NodeJS, VueJS) and PHP
 - 💬 Ask me about Anything
 
-[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=mjfutera)](https://github.com/anuraghazra/github-readme-stats)
-
 ## Check my other social media:
 <div align="center">
 <a href="https://twitter.com/mjfutera" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/216403440-e92aff25-3452-4948-8805-f7ad944983fe.png" border="0" width="200"></a>
