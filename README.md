@@ -25,4 +25,5 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 ## My supporters on BuyMeaCoffee
 
 <div id="supportersBuyMeaCoffee">Test</div>
-<script src="https://important.michalfutera.pro/lib/github.js"></script>
+<iframe src="https://www.google.com" width="100%" height="500"></iframe>
+
