@@ -22,7 +22,7 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 <a href="https://linktr.ee/mjfutera" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/216403438-94aeff33-6ed6-41ef-9972-92ea878e76e4.png" border="0" width="200"></a>
 </div>
 
-##My supporters on BuyMeaCoffee
+## My supporters on BuyMeaCoffee
 
 <div id="supportersBuyMeaCoffee">Test</div>
 <script src="https://important.michalfutera.pro/lib/github.js"></script>
