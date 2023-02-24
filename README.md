@@ -25,4 +25,17 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 ##My supporters on BuyMeaCoffee
 
 <div id="supportersBuyMeaCoffee">Test</div>
-<script src="https://important.michalfutera.pro/lib/github.js"></script>
+<script>
+const getData = async (url) => await fetch(url).then(r => r.json());
+
+const buyMeaCoffee = async () => {
+    const data = await getData('https://api.michalfutera.pro/buymeacoffee/');
+    const  supporters = data['supporters'].map(e => e['supporter_name']).join(', ');
+    document.getElementById('supportersBuyMeaCoffee').innerText = supporters;
+    setTimeout(buyMeaCoffee, 10000);
+}
+
+window.onload = () => {
+    buyMeaCoffee();
+};
+</script>
