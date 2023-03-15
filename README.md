@@ -8,7 +8,7 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 #HTML | #JavaScript | #CSS | #NodeJS | #PHP | #Test Driven Development
 
 - 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
-- 🌱 I currently learn JavaScript (Vannila and NodeJS, VueJS, ThreeJS) and PHP
+- 🌱 I currently learn JavaScript (Vannila and NodeJS, VueJS, ThreeJS) and PHP.
 - 💬 Ask me about Anything
 
 ## Check my other social media:
