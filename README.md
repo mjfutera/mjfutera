@@ -20,7 +20,6 @@ In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯�
 <a href="https://www.buymeacoffee.com/mjfutera?utm_source=github.com&utm_medium=github.com" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/216403435-a0d3d0d3-e991-4612-b0d2-40408ae8d4d0.png" border="0" width="200"></a>
 <a href="https://www.fiverr.com/michalfutera?utm_source=github.com&utm_medium=github.com" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/218256294-c71b8656-0f3a-4fbd-bb5d-804504caa7a0.png" border="0" width="200"></a>
 <a href="https://linktr.ee/mjfutera?utm_source=github.com&utm_medium=github.com" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/216403438-94aeff33-6ed6-41ef-9972-92ea878e76e4.png" border="0" width="200"></a>
-</div>
 <a href="https://linktr.ee/mjfutera?utm_source=github.com&utm_medium=github.com" target="_blank"><img src="https://user-images.githubusercontent.com/100314711/216403438-94aeff33-6ed6-41ef-9972-92ea878e76e4.png" border="0" width="200"></a>
 </div>
 
