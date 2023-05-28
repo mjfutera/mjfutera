@@ -5,7 +5,7 @@ I am a 𝗙𝘂𝗹𝗹 𝗦𝘁𝗮𝗰𝗸 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗲�
 I have extensive experience in HTML, CSS, JavaScript, PHP and various open-source frameworks such as NodeJS. I am skilled in the use of these frameworks to develop 💻 𝘄𝗲𝗯 𝗮𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻𝘀 based on Single Page Applications (SPA) architectures. I also possess skills in writing 𝗰𝗼𝗺𝗽𝗹𝗲𝘅 𝗦𝗤𝗟 𝗾𝘂𝗲𝗿𝗶𝗲𝘀 using popular database servers such as MySQL.
 In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯𝗹𝗲𝘀𝗵𝗼𝗼𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗯𝗹𝗲𝗺𝘀 and resolving bugs within an existing system.
 
-#HTML | #JavaScript | #CSS | #NodeJS | #PHP | #Test Driven Development
+#HTML | #JavaScript | #CSS | #NodeJS | #PHP | #Test Driven Development | #Flutter
 
 - 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
 - 🌱 I currently learn JavaScript (Vannila and NodeJS, VueJS, ThreeJS) and PHP.
