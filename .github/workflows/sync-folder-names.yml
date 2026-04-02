@@ -1,0 +1,63 @@
+name: Sync Folder Names
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "logos/**"
+      - "docs/**"
+      - "blogposts/**"
+      - ".github/workflows/sync-folder-names.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-folder-names:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Mirror folder names across roots
+        run: |
+          python - << 'PY'
+          import os
+
+          roots = ["logos", "docs", "blogposts"]
+
+          for root in roots:
+              os.makedirs(root, exist_ok=True)
+
+          def collect_dirs(root):
+              result = set()
+              for current, dirs, _files in os.walk(root):
+                  for d in dirs:
+                      full = os.path.join(current, d)
+                      rel = os.path.relpath(full, root).replace("\\", "/")
+                      result.add(rel)
+              return result
+
+          desired = set()
+          for root in roots:
+              desired |= collect_dirs(root)
+
+          for root in roots:
+              for rel in sorted(desired):
+                  os.makedirs(os.path.join(root, rel), exist_ok=True)
+          PY
+
+      - name: Commit and push if changed
+        run: |
+          if [[ -n "$(git status --porcelain -- docs blogposts logos)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs blogposts logos
+            git commit -m "chore: sync folder names between logos docs and blogposts"
+            git push
+          else
+            echo "No folder sync changes detected."
+          fi
