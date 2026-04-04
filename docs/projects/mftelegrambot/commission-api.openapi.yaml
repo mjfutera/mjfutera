@@ -12,7 +12,7 @@ info:
     - amount is provided in cents in request payloads
     - amount is returned as USD decimal in response payloads
 servers:
-  - url: https://michalfuterapro-api.mojasuperfirma.workers.dev
+  - url: https://tgbotapi.michalfutera.pro
 
 tags:
   - name: Commission

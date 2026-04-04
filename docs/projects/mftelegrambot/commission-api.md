@@ -7,7 +7,7 @@ Machine-readable specification:
 - ./commission-api.openapi.yaml
 
 Base URL example:
-- https://michalfuterapro-api.mojasuperfirma.workers.dev
+- https://tgbotapi.michalfutera.pro
 
 Authentication:
 - Header: Authorization: Bearer <API_SECRET>
@@ -210,7 +210,7 @@ Common error codes:
 
 Create:
 ```bash
-curl -X POST "https://michalfuterapro-api.mojasuperfirma.workers.dev/api/commission" \
+curl -X POST "https://tgbotapi.michalfutera.pro/api/commission" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
@@ -224,7 +224,7 @@ curl -X POST "https://michalfuterapro-api.mojasuperfirma.workers.dev/api/commiss
 
 Edit:
 ```bash
-curl -X POST "https://michalfuterapro-api.mojasuperfirma.workers.dev/api/commission/edit" \
+curl -X POST "https://tgbotapi.michalfutera.pro/api/commission/edit" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
@@ -239,7 +239,7 @@ curl -X POST "https://michalfuterapro-api.mojasuperfirma.workers.dev/api/commiss
 
 Delete:
 ```bash
-curl -X POST "https://michalfuterapro-api.mojasuperfirma.workers.dev/api/commission/delete" \
+curl -X POST "https://tgbotapi.michalfutera.pro/api/commission/delete" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
