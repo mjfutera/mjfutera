@@ -1,0 +1,392 @@
+openapi: 3.0.3
+info:
+  title: MF Telegram Bot Commission API
+  version: 1.0.0
+  description: |
+    API for creating, editing, and deleting commission batches.
+
+    Authentication:
+    - Authorization: Bearer <API_SECRET>
+
+    Notes:
+    - amount is provided in cents in request payloads
+    - amount is returned as USD decimal in response payloads
+servers:
+  - url: https://tgbotapi.michalfutera.pro
+
+tags:
+  - name: Commission
+    description: Commission batch operations
+
+paths:
+  /api/commission:
+    post:
+      tags: [Commission]
+      summary: Create commission batch
+      operationId: createCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionAddRequest'
+            examples:
+              basic:
+                value:
+                  source_project: sample-project
+                  source_ref: order_2026_0001
+                  commissions:
+                    - user_id: 123456789
+                      amount: 2500
+                      message: Sale #0001
+                    - user_id: 100200300
+                      amount: 900
+      responses:
+        '200':
+          description: Success or partial success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CommissionAddSuccess'
+                  - $ref: '#/components/schemas/CommissionAddPartial'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: source_project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate source_ref
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/commission/edit:
+    post:
+      tags: [Commission]
+      summary: Edit existing commission batch
+      operationId: editCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionEditRequest'
+            examples:
+              edit:
+                value:
+                  source_project: sample-project
+                  source_ref: order_2026_0001
+                  message: Order correction
+                  commissions:
+                    - user_id: 123456789
+                      amount: 2500
+                    - user_id: 556677889
+                      amount: 1100
+      responses:
+        '200':
+          description: Edit summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionEditSuccess'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found or source_project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/commission/delete:
+    post:
+      tags: [Commission]
+      summary: Delete (void) commission batch
+      operationId: deleteCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionDeleteRequest'
+            examples:
+              delete:
+                value:
+                  source_project: sample-project
+                  source_ref: order_2026_0001
+                  message: Order refunded
+      responses:
+        '200':
+          description: Delete summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionDeleteSuccess'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found or source_project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API_SECRET
+
+  schemas:
+    CommissionItem:
+      type: object
+      required: [user_id, amount]
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 123456789
+        amount:
+          type: integer
+          description: Amount in cents
+          minimum: 1
+          example: 2500
+        message:
+          type: string
+          nullable: true
+          example: Sale #0001
+
+    CommissionAddRequest:
+      type: object
+      required: [source_project, source_ref, commissions]
+      properties:
+        source_project:
+          type: string
+          example: sample-project
+        source_ref:
+          type: string
+          example: order_2026_0001
+        commissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CommissionItem'
+
+    CommissionEditRequest:
+      type: object
+      required: [source_project, source_ref, commissions]
+      properties:
+        source_project:
+          type: string
+          example: sample-project
+        source_ref:
+          type: string
+          example: order_2026_0001
+        message:
+          type: string
+          nullable: true
+          example: Order correction
+        commissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CommissionItem'
+
+    CommissionDeleteRequest:
+      type: object
+      required: [source_project, source_ref]
+      properties:
+        source_project:
+          type: string
+          example: sample-project
+        source_ref:
+          type: string
+          example: order_2026_0001
+        message:
+          type: string
+          nullable: true
+          example: Order refunded
+
+    CommissionResult:
+      type: object
+      required: [user_id, transaction_id, amount, new_balance]
+      properties:
+        user_id:
+          type: integer
+        transaction_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+          description: Amount in USD decimal
+          example: 25
+        new_balance:
+          type: number
+          format: float
+          example: 4275.12
+
+    CommissionErrorItem:
+      type: object
+      required: [user_id, error]
+      properties:
+        user_id:
+          type: integer
+          nullable: true
+        error:
+          type: string
+
+    CommissionAddSuccess:
+      type: object
+      required: [status, processed, failed, results, errors]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        processed:
+          type: integer
+        failed:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionErrorItem'
+
+    CommissionAddPartial:
+      type: object
+      required: [status, processed, failed, results, errors]
+      properties:
+        status:
+          type: string
+          enum: [partial]
+        processed:
+          type: integer
+        failed:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionErrorItem'
+
+    CommissionEditDetailsItem:
+      type: object
+      required: [user_id, amount, transaction_id]
+      properties:
+        user_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        transaction_id:
+          type: integer
+
+    CommissionEditSuccess:
+      type: object
+      required: [status, source_project, source_ref, unchanged, voided, added, details]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        source_project:
+          type: string
+        source_ref:
+          type: string
+        unchanged:
+          type: integer
+        voided:
+          type: integer
+        added:
+          type: integer
+        details:
+          type: object
+          required: [voided, added]
+          properties:
+            voided:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommissionEditDetailsItem'
+            added:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommissionEditDetailsItem'
+
+    CommissionDeleteSuccess:
+      type: object
+      required: [status, source_project, source_ref, voided]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        source_project:
+          type: string
+        source_ref:
+          type: string
+        voided:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [status, code, message]
+      properties:
+        status:
+          type: string
+          enum: [error]
+        code:
+          type: string
+          example: INVALID_JSON
+        message:
+          type: string
+          example: Invalid JSON
+        details:
+          type: object
+          nullable: true
+          additionalProperties: true
