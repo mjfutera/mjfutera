@@ -1,15 +1,49 @@
-### Hi there 👋
+### 👨🏻‍💻 Full Stack Developer | AI-Driven Engineer
 
-I am a 𝗙𝘂𝗹𝗹 𝗦𝘁𝗮𝗰𝗸 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿 👨🏻‍💻 specializing in Javascript and NodeJS. I love experimenting with 𝗻𝗲𝘄 𝗹𝗶𝗯𝗿𝗮𝗿𝗶𝗲𝘀 𝗼𝗿 𝗳𝗿𝗮𝗺𝗲𝘄𝗼𝗿𝗸𝘀, and I love experimenting with new languages and adapting them to the needs of each individual client 🎯. I love to build and play with 𝗔𝗣𝗜𝘀 to connect my app with the world. I love fact how big possibilities API gives.
+Hi there! I am a Full Stack Developer who combines robust backend logic with a modern approach to frontend aesthetics. I specialize in the JavaScript (Node.js) and PHP ecosystems, constantly adapting my tech stack to meet unique business needs. 🎯
 
-I have extensive experience in HTML, CSS, JavaScript, PHP and various open-source frameworks such as NodeJS. I am skilled in the use of these frameworks to develop 💻 𝘄𝗲𝗯 𝗮𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻𝘀 based on Single Page Applications (SPA) architectures. I also possess skills in writing 𝗰𝗼𝗺𝗽𝗹𝗲𝘅 𝗦𝗤𝗟 𝗾𝘂𝗲𝗿𝗶𝗲𝘀 using popular database servers such as MySQL.
-In addition to my development work, I am skilled in 🪄 𝘁𝗿𝗼𝘂𝗯𝗹𝗲𝘀𝗵𝗼𝗼𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗯𝗹𝗲𝗺𝘀 and resolving bugs within an existing system.
+In my daily workflow, I leverage AI-assisted development to deliver high-quality code faster, perform deeper bug analysis, and optimize system performance. I am a strong believer in API-first architecture – APIs are the bridges that connect applications to the rest of the world.
 
-#HTML | #JavaScript | #CSS | #NodeJS | #PHP | #Test Driven Development | #Flutter
+### 🛠 Tech Stack
 
-- 🔭 I currently work on <a href="https://github.com/mjfutera/QuizApp" target="_blank">QuizApp</a>
-- 🌱 I currently learn JavaScript, PHP and Flutter.
-- 💬 Ask me about Anything
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+), Vue.js, SPA Architectures.
+- **Backend:** Node.js, PHP, RESTful APIs, Microservices, Firebase.
+- **Mobile:** Cross-platform development with Flutter.
+- **Data:** Complex SQL queries (MySQL) and NoSQL (Firestore).
+
+### ⚙️ Standards & Workflow
+
+- **AI-Powered:** Efficient use of LLM tools for refactoring and troubleshooting.
+- **TDD (Test Driven Development):** Building bug-resistant code from the ground up.
+- **Conventional Commits:** Strict adherence to standards (e.g., `feat: add claim-token flow`).
+- **Rule:** Use the imperative mood, keep titles lowercase, and ensure the message is concise.
+
+### 🚀 What I'm currently working on
+
+- 🏆 **DlaPolakowAPP** – A comprehensive digital ecosystem for Poles living in the Netherlands.
+  - Multiservice Frontend: A complex architecture built on Vue.js.
+  - Mobile App: A feature-rich mobile application developed with Flutter.
+  - Advanced Backend: A scalable solution integrating Firebase and custom AI implementations.
+  - A unified system connecting multiple services into one seamless platform.
+- 🔭 **MichalFutera.Pro** – A fully custom, proprietary WordPress theme built from scratch.
+  - Maximum performance optimization and clean code (zero bloat/unnecessary plugins).
+  - SEO-oriented architecture focused on Core Web Vitals.
+- 🔭 **MichalFuteraPro-Telegram-Bot** – An advanced Telegram bot designed to manage a crypto-based affiliate program.
+  - Full automation of affiliate processes and secure crypto payment integration.
+- 🔭 **Anonymous Sales Plugin** – A WordPress plugin for anonymous digital product sales (integrating NOWPayments + claim-token flow).
+- 🔭 **Countdowns Chrome Extension** – A productivity tool for tracking time and managing personal events.
+- 🌱 Expanding my expertise in Distributed Systems Architecture.
+- 🪄 Specialist in "rescuing" legacy projects – turning chaotic codebases into clean, scalable systems.
+
+### 💬 Let's talk about:
+
+- API Integrations and SPA / Multiservice architectures.
+- AI & Automation in business processes.
+- Solutions for the Polish community and the Dutch market.
+
+### 📫 Get in touch
+
+> *"Code is like humor. When you have to explain it, it's bad."* – I keep this in mind with every commit.
 
 ## Check my other social media:
 
