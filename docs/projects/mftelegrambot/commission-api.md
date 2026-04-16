@@ -1,76 +1,104 @@
 # MF Telegram Bot - Commission API
 
 ## Overview
-This document describes how to integrate with the commission endpoints.
 
-Machine-readable specification:
-- ./commission-api.openapi.yaml
+API do naliczania, korygowania i anulowania prowizji dla partnerów. Każde zapytanie musi mieć poprawny klucz API w nagłówku.
 
-Base URL example:
+Base URL:
 - https://tgbotapi.michalfutera.pro
 
-Authentication:
-- Header: Authorization: Bearer <API_SECRET>
-- Content-Type: application/json
+Autentykacja:
+- Nagłówek: `Authorization: Bearer <API_SECRET>`
+- `Content-Type: application/json`
 
-Currency and amounts:
-- Input amount is always in cents.
-- Stored and returned amount is in USD decimal (cents / 100).
+Kwoty:
+- W zapytaniu podaje się kwotę **w centach** (integer). Przykład: `2500` = $25.00.
+- W odpowiedzi kwoty są zwracane jako **USD decimal** (np. `25.0`).
 
 ---
 
-## Endpoints
+## Kiedy używać którego endpointu?
 
-### 1) Add Commission Batch
-- Method: POST
-- Path: /api/commission
+| Sytuacja | Endpoint |
+|---|---|
+| Zamówienie opłacone — nalicz prowizję | `POST /api/commission` |
+| Prowizja była błędna — popraw kwotę lub zmień partnerów | `POST /api/commission/edit` |
+| Zamówienie anulowane lub zwrot — cofnij prowizję | `POST /api/commission/delete` |
+| Chcesz sprawdzić co się stanie zanim to zrobisz | Dodaj `"dry_run": true` do dowolnego zapytania |
 
-Use this endpoint to create a new commission batch for a unique source_ref.
+---
 
-Required fields:
-- source_project: string (must exist in projects.slug)
-- source_ref: string (must be unique for commission creation)
-- commissions: array (non-empty)
+## Tryb testowy (dry_run)
 
-Commission item:
-- user_id: number (must be an existing partner)
-- amount: number (in cents, > 0)
-- message: string (optional)
+Każdy endpoint obsługuje pole `"dry_run": true`. Gdy jest ustawione:
 
-Request example:
+- Cała walidacja jest wykonywana normalnie (sprawdzane są projekty, partnerzy, duplikaty, kwoty)
+- **Nic nie jest zapisywane do bazy** — salda nie ulegają zmianie
+- **Żadne powiadomienia** nie są wysyłane na Telegramie
+- Odpowiedź jest identyczna jak przy prawdziwym żądaniu — z jedną różnicą: `"dry_run": true` w odpowiedzi i `transaction_id: null` zamiast prawdziwych ID
+
+Gdy jesteś gotowy do produkcji, po prostu usuń pole `dry_run` z zapytania. Kod po stronie integracji nie wymaga żadnych innych zmian — struktury odpowiedzi są identyczne.
+
+---
+
+## Endpointy
+
+### 1. Nalicz prowizję — `POST /api/commission`
+
+**Kiedy używać:** Zamówienie zostało opłacone. Chcesz dodać prowizję dla jednego lub wielu partnerów powiązanych z tym zamówieniem.
+
+**Co robi:**
+- Tworzy nowe wpisy transakcji typu `commission` w bazie
+- Zwiększa saldo każdego partnera o podaną kwotę
+- Wysyła powiadomienie na Telegramie do każdego partnera
+- Blokuje duplikaty — nie można dwa razy naliczyć prowizji dla tego samego `source_ref`
+
+**Wymagane pola:**
+- `source_project` — slug projektu (musi istnieć w bazie)
+- `source_ref` — unikalny identyfikator zamówienia/zdarzenia (np. ID zamówienia ze sklepu)
+- `commissions` — tablica partnerów z kwotami
+
+**Elementy tablicy `commissions`:**
+- `user_id` — ID partnera (musi być aktywnym partnerem)
+- `amount` — kwota w centach, liczba całkowita > 0
+- `message` — opcjonalna notatka widoczna w historii transakcji
+
+Zapytanie:
 ```json
 {
-  "source_project": "sample-project",
+  "source_project": "moj-sklep",
   "source_ref": "order_2026_0001",
   "commissions": [
-    { "user_id": 123456789, "amount": 2500, "message": "Sale #0001" },
+    { "user_id": 123456789, "amount": 2500, "message": "Sprzedaż #0001" },
     { "user_id": 100200300, "amount": 900 }
   ]
 }
 ```
 
-Success response example (200):
+Odpowiedź sukces (200):
 ```json
 {
+  "dry_run": false,
   "status": "ok",
   "processed": 2,
   "failed": 0,
   "results": [
-    { "user_id": 123456789, "transaction_id": 101, "amount": 25, "new_balance": 4250.12 },
-    { "user_id": 100200300, "transaction_id": 102, "amount": 9, "new_balance": 168.55 }
+    { "user_id": 123456789, "transaction_id": 101, "amount": 25, "new_balance": 4275.12 },
+    { "user_id": 100200300, "transaction_id": 102, "amount": 9, "new_balance": 177.55 }
   ],
   "errors": []
 }
 ```
 
-Partial response example (200):
+Odpowiedź częściowa — gdy część partnerów jest nieprawidłowa (200):
 ```json
 {
+  "dry_run": false,
   "status": "partial",
   "processed": 1,
   "failed": 1,
   "results": [
-    { "user_id": 123456789, "transaction_id": 103, "amount": 25, "new_balance": 4275.12 }
+    { "user_id": 123456789, "transaction_id": 103, "amount": 25, "new_balance": 4300.12 }
   ],
   "errors": [
     { "user_id": 999999999, "error": "User is not a partner" }
@@ -80,54 +108,56 @@ Partial response example (200):
 
 ---
 
-### 2) Edit Commission Batch
-- Method: POST
-- Path: /api/commission/edit
+### 2. Popraw prowizję — `POST /api/commission/edit`
 
-Use this endpoint to update an existing commission batch by replacing it with a new commissions array.
+**Kiedy używać:** Prowizja została już naliczona, ale zawiera błąd — zła kwota, pominięty partner, nadmiarowy partner. Używasz tego samego `source_ref` co przy tworzeniu.
 
-Important behavior:
-- If an existing entry matches exactly (same user_id and same amount), it is left unchanged.
-- If an existing entry is removed or changed, the old transaction is marked as voided and balance is reverted.
-- If a new entry appears, a new active transaction is created and balance is increased.
-- This design supports repeated edits safely.
+**Co robi:**
+- Porównuje nową tablicę `commissions` z aktywnymi wpisami w bazie dla danego `source_ref`
+- Wpisy, które się nie zmieniły (ten sam `user_id` i ta sama kwota) — zostają nienaruszone
+- Wpisy, które się zmieniły lub zostały usunięte — stara transakcja jest oznaczana jako `voided`, saldo cofane
+- Nowe lub zmienione wpisy — tworzone są nowe transakcje, saldo aktualizowane
+- Partnerzy otrzymują powiadomienia na Telegramie o zmianach
 
-Required fields:
-- source_project: string
-- source_ref: string
-- commissions: array (non-empty)
+**Wymagane pola:**
+- `source_project`
+- `source_ref` — ten sam co przy `add`
+- `commissions` — pełna, docelowa lista partnerów z kwotami
 
-Optional fields:
-- message: string (reason for update, used in change logs/notifications)
+**Opcjonalne pola:**
+- `message` — powód korekty (trafia do logów i powiadomień)
 
-Request example:
+Zapytanie (zmiana kwoty, usunięcie jednego partnera, dodanie nowego):
 ```json
 {
-  "source_project": "sample-project",
+  "source_project": "moj-sklep",
   "source_ref": "order_2026_0001",
-  "message": "Order line items corrected",
+  "message": "Korekta po weryfikacji zamówienia",
   "commissions": [
-    { "user_id": 123456789, "amount": 2500 },
-    { "user_id": 556677889, "amount": 1100, "message": "Added missing partner" }
+    { "user_id": 123456789, "amount": 3000 },
+    { "user_id": 556677889, "amount": 1100 }
   ]
 }
 ```
 
-Success response example (200):
+Odpowiedź (200):
 ```json
 {
+  "dry_run": false,
   "status": "ok",
-  "source_project": "sample-project",
+  "source_project": "moj-sklep",
   "source_ref": "order_2026_0001",
-  "unchanged": 1,
-  "voided": 1,
-  "added": 1,
+  "unchanged": 0,
+  "voided": 2,
+  "added": 2,
   "details": {
     "voided": [
+      { "user_id": 123456789, "amount": 25, "transaction_id": 101 },
       { "user_id": 100200300, "amount": 9, "transaction_id": 102 }
     ],
     "added": [
-      { "user_id": 556677889, "amount": 11, "transaction_id": 120 }
+      { "user_id": 123456789, "amount": 30, "transaction_id": 110 },
+      { "user_id": 556677889, "amount": 11, "transaction_id": 111 }
     ]
   }
 }
@@ -135,86 +165,87 @@ Success response example (200):
 
 ---
 
-### 3) Delete Commission Batch
-- Method: POST
-- Path: /api/commission/delete
+### 3. Anuluj prowizję — `POST /api/commission/delete`
 
-Use this endpoint to void all active commissions in a batch.
+**Kiedy używać:** Zamówienie zostało anulowane, zwrócone lub z innego powodu prowizja nie powinna być wypłacona. Cofa całą partię prowizji dla danego `source_ref`.
 
-Required fields:
-- source_project: string
-- source_ref: string
+**Co robi:**
+- Oznacza wszystkie aktywne transakcje dla danego `source_ref` jako `voided`
+- Cofa salda wszystkich partnerów powiązanych z tym `source_ref`
+- Wysyła powiadomienia na Telegramie do każdego partnera
 
-Optional fields:
-- message: string (reason for cancellation)
+**Ważne:** Dane nie są fizycznie usuwane z bazy. Wpisy pozostają z oznaczeniem `status = voided` — historia jest zachowana dla audytu.
 
-Request example:
+**Wymagane pola:**
+- `source_project`
+- `source_ref`
+
+**Opcjonalne pola:**
+- `message` — powód anulowania (np. `"Zwrot zamówienia"`, `"Chargeback"`)
+
+Zapytanie:
 ```json
 {
-  "source_project": "sample-project",
+  "source_project": "moj-sklep",
   "source_ref": "order_2026_0001",
-  "message": "Order refunded"
+  "message": "Zwrot zamówienia"
 }
 ```
 
-Success response example (200):
+Odpowiedź (200):
 ```json
 {
+  "dry_run": false,
   "status": "ok",
-  "source_project": "sample-project",
+  "source_project": "moj-sklep",
   "source_ref": "order_2026_0001",
-  "voided": 2
-}
-```
-
----
-
-## Error Format
-Validation and business errors use a consistent schema:
-
-```json
-{
-  "status": "error",
-  "code": "ERROR_CODE",
-  "message": "Human readable message",
+  "voided": 2,
   "details": {
-    "optional": "context"
+    "voided": [
+      { "user_id": 123456789, "amount": 30, "transaction_id": 110 },
+      { "user_id": 556677889, "amount": 11, "transaction_id": 111 }
+    ]
   }
 }
 ```
 
-Common error codes:
-- UNAUTHORIZED (403)
-- INVALID_JSON (400)
-- MISSING_SOURCE_PROJECT (400)
-- MISSING_SOURCE_REF (400)
-- SOURCE_PROJECT_NOT_FOUND (404)
-- DUPLICATE_SOURCE_REF (409) - create only
-- INVALID_COMMISSIONS (400)
-- USER_NOT_PARTNER (400)
-- COMMISSION_BATCH_NOT_FOUND (404) - edit/delete
-- INVALID_MODE (400)
+---
+
+## Format błędów
+
+```json
+{
+  "status": "error",
+  "code": "KOD_BLEDU",
+  "message": "Opis błędu",
+  "details": { "opcjonalny": "kontekst" }
+}
+```
+
+| Kod | Status HTTP | Kiedy |
+|---|---|---|
+| `UNAUTHORIZED` | 403 | Brak lub błędny klucz API |
+| `INVALID_JSON` | 400 | Body nie jest poprawnym JSON |
+| `MISSING_SOURCE_PROJECT` | 400 | Brak pola source_project |
+| `MISSING_SOURCE_REF` | 400 | Brak pola source_ref |
+| `SOURCE_PROJECT_NOT_FOUND` | 404 | Projekt o podanym slug nie istnieje |
+| `DUPLICATE_SOURCE_REF` | 409 | Prowizja dla tego source_ref już istnieje (tylko add) |
+| `INVALID_COMMISSIONS` | 400 | Błędna tablica commissions (zły format, duplikat user_id) |
+| `USER_NOT_PARTNER` | 400 | Podany użytkownik nie jest partnerem |
+| `COMMISSION_BATCH_NOT_FOUND` | 404 | Nie ma aktywnych prowizji dla tego source_ref (edit/delete) |
+| `INVALID_MODE` | 400 | Nieprawidłowa wartość pola mode |
 
 ---
 
-## Integration Notes
-- source_ref should be your stable external reference (for example order ID).
-- Do not generate a new source_ref for edits of the same business event.
-- Reuse the same source_ref when calling edit/delete on an existing batch.
-- Use integer cents to avoid floating-point issues.
-- Retry logic: if you receive 409 DUPLICATE_SOURCE_REF on create, check whether the batch was already created.
+## Przykłady cURL
 
----
-
-## Minimal cURL Examples
-
-Create:
+### Nalicz prowizję:
 ```bash
 curl -X POST "https://tgbotapi.michalfutera.pro/api/commission" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
-    "source_project": "sample-project",
+    "source_project": "moj-sklep",
     "source_ref": "order_2026_0001",
     "commissions": [
       { "user_id": 123456789, "amount": 2500 }
@@ -222,29 +253,54 @@ curl -X POST "https://tgbotapi.michalfutera.pro/api/commission" \
   }'
 ```
 
-Edit:
+### Dry_run przed naliczeniem:
+```bash
+curl -X POST "https://tgbotapi.michalfutera.pro/api/commission" \
+  -H "Authorization: Bearer YOUR_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_project": "moj-sklep",
+    "source_ref": "order_2026_0001",
+    "dry_run": true,
+    "commissions": [
+      { "user_id": 123456789, "amount": 2500 }
+    ]
+  }'
+```
+
+### Popraw prowizję:
 ```bash
 curl -X POST "https://tgbotapi.michalfutera.pro/api/commission/edit" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
-    "source_project": "sample-project",
+    "source_project": "moj-sklep",
     "source_ref": "order_2026_0001",
-    "message": "Correction",
+    "message": "Korekta kwoty",
     "commissions": [
       { "user_id": 123456789, "amount": 2600 }
     ]
   }'
 ```
 
-Delete:
+### Anuluj prowizję:
 ```bash
 curl -X POST "https://tgbotapi.michalfutera.pro/api/commission/delete" \
   -H "Authorization: Bearer YOUR_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
-    "source_project": "sample-project",
+    "source_project": "moj-sklep",
     "source_ref": "order_2026_0001",
-    "message": "Refund"
+    "message": "Zwrot zamówienia"
   }'
 ```
+
+---
+
+## Uwagi integracyjne
+
+- `source_ref` powinien być stabilnym zewnętrznym identyfikatorem — najlepiej ID zamówienia z Twojego systemu.
+- Nie generuj nowego `source_ref` przy edycji lub anulowaniu — zawsze używaj tego samego co przy tworzeniu.
+- Używaj całkowitych centów zamiast liczb dziesiętnych, żeby unikać błędów zaokrąglania.
+- Jeśli otrzymasz `409 DUPLICATE_SOURCE_REF` przy tworzeniu, prowizja już istnieje — nie ponawiaj, sprawdź stan.
+

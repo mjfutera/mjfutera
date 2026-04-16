@@ -1,18 +1,451 @@
 openapi: 3.0.3
 info:
   title: MF Telegram Bot Commission API
-  version: 1.0.0
+  version: 1.1.0
   description: |
-    API for creating, editing, and deleting commission batches.
+    API do naliczania, korygowania i anulowania prowizji dla partnerów.
 
-    Authentication:
-    - Authorization: Bearer <API_SECRET>
+    Autentykacja:
+    - Nagłówek: Authorization: Bearer <API_SECRET>
 
-    Notes:
-    - amount is provided in cents in request payloads
-    - amount is returned as USD decimal in response payloads
+    Kwoty:
+    - W zapytaniu podaje się kwotę w centach (integer). Przykład: 2500 = $25.00
+    - W odpowiedzi kwoty są zwracane jako USD decimal (np. 25.0)
+
+    Tryb testowy (dry_run):
+    - Dodaj "dry_run": true do dowolnego zapytania
+    - Cała walidacja jest wykonywana normalnie, ale nic nie jest zapisywane do bazy
+    - Salda nie ulegają zmianie, powiadomienia nie są wysyłane
+    - Odpowiedź jest identyczna jak przy prawdziwym żądaniu — transaction_id będzie null
 servers:
   - url: https://tgbotapi.michalfutera.pro
+
+tags:
+  - name: Commission
+    description: Operacje na partiach prowizji
+
+paths:
+  /api/commission:
+    post:
+      tags: [Commission]
+      summary: Nalicz prowizję
+      description: |
+        Tworzy nową partię prowizji dla danego source_ref.
+        Używać gdy zamówienie zostało opłacone.
+        Blokuje duplikaty — nie można dwa razy naliczyć prowizji dla tego samego source_ref.
+      operationId: createCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionAddRequest'
+            examples:
+              basic:
+                summary: Naliczenie prowizji dla dwóch partnerów
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  commissions:
+                    - user_id: 123456789
+                      amount: 2500
+                      message: "Sprzedaż #0001"
+                    - user_id: 100200300
+                      amount: 900
+              dry_run:
+                summary: Dry_run — sprawdź bez zapisywania
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  dry_run: true
+                  commissions:
+                    - user_id: 123456789
+                      amount: 2500
+      responses:
+        '200':
+          description: Sukces lub częściowy sukces
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionAddResponse'
+        '400':
+          description: Błąd walidacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Brak autoryzacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Projekt nie istnieje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Prowizja dla tego source_ref już istnieje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/commission/edit:
+    post:
+      tags: [Commission]
+      summary: Popraw prowizję
+      description: |
+        Aktualizuje istniejącą partię prowizji — zastępuje ją nową tablicą commissions.
+        Używać gdy prowizja zawiera błąd (zła kwota, pominięty lub nadmiarowy partner).
+        Wpisy bez zmian są pozostawiane nienaruszone. Zmienione lub usunięte są oznaczane jako voided,
+        nowe lub zmienione tworzone są na nowo. Partnerzy otrzymują powiadomienia o zmianach.
+      operationId: editCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionEditRequest'
+            examples:
+              edit:
+                summary: Korekta kwoty i zmiana składu partnerów
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  message: Korekta po weryfikacji zamówienia
+                  commissions:
+                    - user_id: 123456789
+                      amount: 3000
+                    - user_id: 556677889
+                      amount: 1100
+              dry_run:
+                summary: Dry_run — sprawdź co się zmieni
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  dry_run: true
+                  commissions:
+                    - user_id: 123456789
+                      amount: 3000
+      responses:
+        '200':
+          description: Podsumowanie edycji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionEditSuccess'
+        '400':
+          description: Błąd walidacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Brak autoryzacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Partia nie istnieje lub projekt nie istnieje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/commission/delete:
+    post:
+      tags: [Commission]
+      summary: Anuluj prowizję
+      description: |
+        Unieważnia wszystkie aktywne transakcje dla danego source_ref i cofa salda partnerów.
+        Używać gdy zamówienie zostało anulowane lub zwrócone.
+        Dane nie są fizycznie usuwane — wpisy pozostają w bazie z oznaczeniem status=voided.
+      operationId: deleteCommissionBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionDeleteRequest'
+            examples:
+              delete:
+                summary: Anulowanie prowizji przy zwrocie zamówienia
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  message: Zwrot zamówienia
+              dry_run:
+                summary: Dry_run — sprawdź co zostanie cofnięte
+                value:
+                  source_project: moj-sklep
+                  source_ref: order_2026_0001
+                  dry_run: true
+      responses:
+        '200':
+          description: Podsumowanie anulowania
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionDeleteSuccess'
+        '400':
+          description: Błąd walidacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Brak autoryzacji
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Partia nie istnieje lub projekt nie istnieje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API_SECRET
+
+  schemas:
+    CommissionItem:
+      type: object
+      required: [user_id, amount]
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 123456789
+        amount:
+          type: integer
+          description: Kwota w centach
+          minimum: 1
+          example: 2500
+        message:
+          type: string
+          nullable: true
+          example: "Sprzedaż #0001"
+
+    CommissionAddRequest:
+      type: object
+      required: [source_project, source_ref, commissions]
+      properties:
+        source_project:
+          type: string
+          example: moj-sklep
+        source_ref:
+          type: string
+          example: order_2026_0001
+        dry_run:
+          type: boolean
+          default: false
+          description: Gdy true — walidacja jest wykonywana, ale nic nie jest zapisywane do bazy
+        commissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CommissionItem'
+
+    CommissionEditRequest:
+      type: object
+      required: [source_project, source_ref, commissions]
+      properties:
+        source_project:
+          type: string
+          example: moj-sklep
+        source_ref:
+          type: string
+          example: order_2026_0001
+        message:
+          type: string
+          nullable: true
+          example: Korekta po weryfikacji zamówienia
+        dry_run:
+          type: boolean
+          default: false
+          description: Gdy true — walidacja jest wykonywana, ale nic nie jest zapisywane do bazy
+        commissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CommissionItem'
+
+    CommissionDeleteRequest:
+      type: object
+      required: [source_project, source_ref]
+      properties:
+        source_project:
+          type: string
+          example: moj-sklep
+        source_ref:
+          type: string
+          example: order_2026_0001
+        message:
+          type: string
+          nullable: true
+          example: Zwrot zamówienia
+        dry_run:
+          type: boolean
+          default: false
+          description: Gdy true — walidacja jest wykonywana, ale nic nie jest zapisywane do bazy
+
+    CommissionResult:
+      type: object
+      required: [user_id, transaction_id, amount, new_balance]
+      properties:
+        user_id:
+          type: integer
+        transaction_id:
+          type: integer
+          nullable: true
+          description: null gdy dry_run=true
+        amount:
+          type: number
+          format: float
+          description: Kwota w USD decimal
+          example: 25
+        new_balance:
+          type: number
+          format: float
+          description: Saldo po operacji (przy dry_run — saldo jakie by było)
+          example: 4275.12
+
+    CommissionErrorItem:
+      type: object
+      required: [user_id, error]
+      properties:
+        user_id:
+          type: integer
+          nullable: true
+        error:
+          type: string
+
+    CommissionAddResponse:
+      type: object
+      required: [dry_run, status, processed, failed, results, errors]
+      properties:
+        dry_run:
+          type: boolean
+        status:
+          type: string
+          enum: [ok, partial]
+        processed:
+          type: integer
+        failed:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionErrorItem'
+
+    CommissionDetailsItem:
+      type: object
+      required: [user_id, amount, transaction_id]
+      properties:
+        user_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        transaction_id:
+          type: integer
+          nullable: true
+          description: null gdy dry_run=true
+
+    CommissionEditSuccess:
+      type: object
+      required: [dry_run, status, source_project, source_ref, unchanged, voided, added, details]
+      properties:
+        dry_run:
+          type: boolean
+        status:
+          type: string
+          enum: [ok]
+        source_project:
+          type: string
+        source_ref:
+          type: string
+        unchanged:
+          type: integer
+        voided:
+          type: integer
+        added:
+          type: integer
+        details:
+          type: object
+          required: [voided, added]
+          properties:
+            voided:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommissionDetailsItem'
+            added:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommissionDetailsItem'
+
+    CommissionDeleteSuccess:
+      type: object
+      required: [dry_run, status, source_project, source_ref, voided, details]
+      properties:
+        dry_run:
+          type: boolean
+        status:
+          type: string
+          enum: [ok]
+        source_project:
+          type: string
+        source_ref:
+          type: string
+        voided:
+          type: integer
+        details:
+          type: object
+          required: [voided]
+          properties:
+            voided:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommissionDetailsItem'
+
+    ErrorResponse:
+      type: object
+      required: [status, code, message]
+      properties:
+        status:
+          type: string
+          enum: [error]
+        code:
+          type: string
+          example: INVALID_JSON
+        message:
+          type: string
+          example: Invalid JSON
+        details:
+          type: object
+          nullable: true
+          additionalProperties: true
+
 
 tags:
   - name: Commission
