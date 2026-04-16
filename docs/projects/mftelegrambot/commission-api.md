@@ -211,6 +211,73 @@ Odpowiedź (200):
 
 ---
 
+### 4. Sprawdź listę partnerów — `GET /api/partners`
+
+**Kiedy używać:** Chcesz sprawdzić, którzy użytkownicy mają status partnera, zanim wyślesz zapytanie o prowizję. Przydatne do weryfikacji `user_id` i pobierania danych wyświetlanych w integracji.
+
+**Co zwraca:**
+- Listę wszystkich aktywnych partnerów z ich podstawowymi danymi
+
+**Autentykacja:** Tak — nagłówek `Authorization: Bearer <API_SECRET>`
+
+**Parametry:** Brak
+
+Zapytanie:
+```bash
+GET /api/partners
+Authorization: Bearer YOUR_API_SECRET
+```
+
+Odpowiedź (200):
+```json
+{
+  "status": "ok",
+  "count": 2,
+  "data": [
+    { "id": 123456789, "first_name": "Jan", "last_name": "Kowalski", "username": "jankowalski" },
+    { "id": 100200300, "first_name": "Anna", "last_name": null, "username": "annak" }
+  ]
+}
+```
+
+**Pola danych:**
+| Pole | Typ | Opis |
+|---|---|---|
+| `id` | integer | Telegram user ID — używany jako `user_id` w zapytaniach prowizji |
+| `first_name` | string | Imię z profilu Telegram |
+| `last_name` | string \| null | Nazwisko z profilu Telegram (może być null) |
+| `username` | string \| null | Nazwa użytkownika Telegram (może być null) |
+
+---
+
+### 5. Sprawdź czy użytkownik jest partnerem — `GET /partnercheck/:userId`
+
+**Kiedy używać:** Szybka weryfikacja przed naliczeniem prowizji — sprawdza czy konkretny `user_id` ma aktywny status partnera.
+
+**Autentykacja:** Brak — endpoint jest publiczny.
+
+**Parametry URL:**
+- `:userId` — Telegram user ID (integer)
+
+Zapytanie:
+```bash
+GET /partnercheck/123456789
+```
+
+Odpowiedź (200):
+```json
+true
+```
+
+lub gdy użytkownik nie jest partnerem:
+```json
+false
+```
+
+Odpowiedź jest zawsze `200` — wartość `false` nie oznacza błędu, oznacza że użytkownik nie jest partnerem (lub nie istnieje w bazie).
+
+---
+
 ## Format błędów
 
 ```json
