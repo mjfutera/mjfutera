@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="96 112 408 376" width="408" height="376">
+  <defs>
+    <clipPath id="lg-clip"><path clip-rule="evenodd" d="M224.88 160.5A87 87 0 0 1 375.57 160.5L494.93 367.58A63.91 82.99 54 1 1 358.88 391.7L397.14 325.84A31.23 31.23 0 0 0 343.05 294.61L258.74 440.65A84.7 84.7 0 0 1 112.03 355.95ZM326.64 214.25A31.5 31.5 0 0 0 272.08 182.75L161.8 373.75A31.5 31.5 0 0 0 216.36 405.25Z"/></clipPath>
+    <linearGradient id="lg-base" gradientUnits="userSpaceOnUse" x1="0" y1="117" x2="0" y2="483">
+      <stop offset="0" stop-color="#e04515"/>
+      <stop offset=".12" stop-color="#e9501a"/>
+      <stop offset=".23" stop-color="#f36222"/>
+      <stop offset=".5" stop-color="#f88131"/>
+      <stop offset=".6" stop-color="#fa8835"/>
+      <stop offset="1" stop-color="#fb8d38"/>
+    </linearGradient>
+    <radialGradient id="lg-arch" gradientUnits="userSpaceOnUse" cx="338" cy="126" r="108">
+      <stop offset="0" stop-color="#a52e0b"/>
+      <stop offset=".3" stop-color="#bd370e"/>
+      <stop offset=".55" stop-color="#d24012" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#e5491a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lg-stroke" gradientUnits="userSpaceOnUse" x1="337.7" y1="195" x2="428.7" y2="247.5">
+      <stop offset="0" stop-color="#f25a1e"/>
+      <stop offset=".19" stop-color="#ef4d18"/>
+      <stop offset=".38" stop-color="#e84716"/>
+      <stop offset=".57" stop-color="#db4213"/>
+      <stop offset=".76" stop-color="#cf3d11"/>
+      <stop offset="1" stop-color="#c43910"/>
+    </linearGradient>
+    <linearGradient id="lg-stroke-lift" gradientUnits="userSpaceOnUse" x1="0" y1="240" x2="0" y2="348">
+      <stop offset="0" stop-color="#fa8835" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fa8835" stop-opacity=".6"/>
+    </linearGradient>
+    <linearGradient id="lg-fold" gradientUnits="userSpaceOnUse" x1="245" y1="352" x2="195" y2="478">
+      <stop offset="0" stop-color="#ec4a17"/>
+      <stop offset=".45" stop-color="#d44012"/>
+      <stop offset="1" stop-color="#af310c"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#lg-base)" fill-rule="evenodd" d="M224.88 160.5A87 87 0 0 1 375.57 160.5L494.93 367.58A63.91 82.99 54 1 1 358.88 391.7L397.14 325.84A31.23 31.23 0 0 0 343.05 294.61L258.74 440.65A84.7 84.7 0 0 1 112.03 355.95ZM326.64 214.25A31.5 31.5 0 0 0 272.08 182.75L161.8 373.75A31.5 31.5 0 0 0 216.36 405.25Z"/>
+  <g clip-path="url(#lg-clip)">
+    <path fill="#f05019" fill-opacity=".4" fill-rule="evenodd" d="M80 100H520V500H80ZM-273.2 -225.2A573.2 573.2 0 1 0 873.2 -225.2A573.2 573.2 0 1 0 -273.2 -225.2Z"/>
+    <path fill="url(#lg-arch)" d="M334 100L335.5 118C347 140 346 185 332 206L200 206L200 100Z"/>
+    <path fill="url(#lg-stroke)" d="M334 100L335.5 118C347 140 346 185 332 206L250.7 345.9A573.2 573.2 0 0 0 380 342.4L385 336L400.5 318C413 295 417 262 418 228L440 228L380 100Z"/>
+    <path fill="url(#lg-stroke-lift)" d="M334 100L335.5 118C347 140 346 185 332 206L250.7 345.9A573.2 573.2 0 0 0 380 342.4L385 336L400.5 318C413 295 417 262 418 228L440 228L380 100Z"/>
+    <path fill="url(#lg-fold)" d="M158 382L154 390C145 418 148 456 178 487L178 500L310 500L330 380L380 342.4A573.2 573.2 0 0 1 250.7 345.9Z"/>
+  </g>
+</svg>
